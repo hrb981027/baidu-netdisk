@@ -19,6 +19,7 @@
   },
   "require": {
     "php": ">=7.4",
+    "hrb981027/treasure-bag": "^1.0@beta",
     "hyperf/guzzle": "^2.2"
   },
   "require-dev": {

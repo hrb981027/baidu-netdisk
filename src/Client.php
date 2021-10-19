@@ -131,6 +131,7 @@ class Client
             'path' => $data->path,
             'is_dir' => false,
             'size' => (string)filesize($data->localPath),
+            'r_type' => $data->rType,
             'block_list' => array_column($fileDataList, 'md5')
         ]));
 
@@ -147,6 +148,7 @@ class Client
             'path' => $data->path,
             'size' => (string)filesize($data->localPath),
             'is_dir' => false,
+            'r_type' => $data->rType,
             'upload_id' => $preCreateResult['uploadid'],
             'block_list' => array_column($fileDataList, 'md5')
         ]));
