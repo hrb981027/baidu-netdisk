@@ -9,6 +9,7 @@ use Hrb981027\BaiduNetdisk\Param\Param;
 class Data extends Param
 {
     public string $path;
+    public bool $isDir = false;
     public int $rType = 0;
     public string $localPath;
 }

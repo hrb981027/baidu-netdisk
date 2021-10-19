@@ -116,7 +116,7 @@ class Client
      */
     public function oneUpload(string $accessToken, OneUploadData $data)
     {
-        if (is_dir($data->localPath)) {
+        if ($data->isDir) {
             return $this->create($accessToken, new CreateData([
                 'path' => $data->path,
                 'size' => '0',
