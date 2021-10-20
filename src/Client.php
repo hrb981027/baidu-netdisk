@@ -7,8 +7,14 @@ namespace Hrb981027\BaiduNetdisk;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Exception\GuzzleException;
 use Hrb981027\BaiduNetdisk\Exception\InvalidClientException;
+use Hrb981027\BaiduNetdisk\Param\Client\FileMetas\Data as FileMetasData;
+use Hrb981027\BaiduNetdisk\Param\Client\GetList\Data as GetListData;
+use Hrb981027\BaiduNetdisk\Param\Client\GetListAll\Data as GetListAllData;
+use Hrb981027\BaiduNetdisk\Param\Client\GetQuota\Data as GetQuotaData;
+use Hrb981027\BaiduNetdisk\Param\Client\Manger\Data as MangerData;
 use Hrb981027\BaiduNetdisk\Param\Client\OneUpload\Data as OneUploadData;
 use Hrb981027\BaiduNetdisk\Param\Client\PreCreate\Data as PreCreateData;
+use Hrb981027\BaiduNetdisk\Param\Client\Search\Data as SearchData;
 use Hrb981027\BaiduNetdisk\Param\Client\Upload\Data as UploadData;
 use Hrb981027\BaiduNetdisk\Param\Client\Create\Data as CreateData;
 use Hyperf\Guzzle\ClientFactory;
@@ -18,6 +24,13 @@ class Client
     const PRE_CREATE_ENDPOINT = 'https://pan.baidu.com/rest/2.0/xpan/file';
     const UPLOAD_ENDPOINT = 'https://d.pcs.baidu.com/rest/2.0/pcs/superfile2';
     const CREATE_ENDPOINT = 'https://pan.baidu.com/rest/2.0/xpan/file';
+    const FILE_METAS_ENDPOINT = 'https://pan.baidu.com/rest/2.0/xpan/multimedia';
+    const SEARCH_ENDPOINT = 'https://pan.baidu.com/rest/2.0/xpan/file';
+    const LIST_ENDPOINT = 'https://pan.baidu.com/rest/2.0/xpan/file';
+    const LIST_ALL_ENDPOINT = 'https://pan.baidu.com/rest/2.0/xpan/multimedia';
+    const MANAGER_ENDPOINT = 'https://pan.baidu.com/rest/2.0/xpan/file';
+    const USER_INFO_ENDPOINT = 'https://pan.baidu.com/rest/2.0/xpan/nas';
+    const QUOTA_ENDPOINT = 'https://pan.baidu.com/api/quota';
 
     protected GuzzleHttpClient $client;
 
@@ -175,5 +188,188 @@ class Client
         fclose($fp);
 
         return $result;
+    }
+
+    /**
+     * @throws InvalidClientException
+     */
+    public function fileMetas(string $accessToken, FileMetasData $data)
+    {
+        try {
+            $response = $this->client->get(self::FILE_METAS_ENDPOINT, [
+                'query' => array_merge([
+                    'method' => 'filemetas',
+                    'access_token' => $accessToken
+                ], $data->toArray())
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (GuzzleException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $responseContents = json_decode($response->getBody()->getContents(), true);
+
+                throw new InvalidClientException($responseContents['errmsg'] ?? '网络错误');
+            }
+
+            throw new InvalidClientException('网络错误');
+        }
+    }
+
+    /**
+     * @throws InvalidClientException
+     */
+    public function search(string $accessToken, SearchData $data)
+    {
+        try {
+            $response = $this->client->get(self::SEARCH_ENDPOINT, [
+                'query' => array_merge([
+                    'method' => 'search',
+                    'access_token' => $accessToken
+                ], $data->toArray())
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (GuzzleException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $responseContents = json_decode($response->getBody()->getContents(), true);
+
+                throw new InvalidClientException($responseContents['errmsg'] ?? '网络错误');
+            }
+
+            throw new InvalidClientException('网络错误');
+        }
+    }
+
+    /**
+     * @throws InvalidClientException
+     */
+    public function getList(string $accessToken, GetListData $data)
+    {
+        try {
+            $response = $this->client->get(self::LIST_ENDPOINT, [
+                'query' => array_merge([
+                    'method' => 'list',
+                    'access_token' => $accessToken
+                ], $data->toArray())
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (GuzzleException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $responseContents = json_decode($response->getBody()->getContents(), true);
+
+                throw new InvalidClientException($responseContents['errmsg'] ?? '网络错误');
+            }
+
+            throw new InvalidClientException('网络错误');
+        }
+    }
+
+    /**
+     * @throws InvalidClientException
+     */
+    public function getListAll(string $accessToken, GetListAllData $data)
+    {
+        try {
+            $response = $this->client->get(self::LIST_ALL_ENDPOINT, [
+                'query' => array_merge([
+                    'method' => 'listall',
+                    'access_token' => $accessToken
+                ], $data->toArray())
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (GuzzleException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $responseContents = json_decode($response->getBody()->getContents(), true);
+
+                throw new InvalidClientException($responseContents['errmsg'] ?? '网络错误');
+            }
+
+            throw new InvalidClientException('网络错误');
+        }
+    }
+
+    /**
+     * @throws InvalidClientException
+     */
+    public function manager(string $accessToken, string $opera, MangerData $data)
+    {
+        try {
+            $response = $this->client->post(self::MANAGER_ENDPOINT, [
+                'query' => [
+                    'method' => 'filemanager',
+                    'access_token' => $accessToken,
+                    'opera' => $opera
+                ],
+                'form_params' => $data->toArray()
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (GuzzleException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $responseContents = json_decode($response->getBody()->getContents(), true);
+
+                throw new InvalidClientException($responseContents['errmsg'] ?? '网络错误');
+            }
+
+            throw new InvalidClientException('网络错误');
+        }
+    }
+
+    /**
+     * @throws InvalidClientException
+     */
+    public function getUserInfo(string $accessToken)
+    {
+        try {
+            $response = $this->client->get(self::USER_INFO_ENDPOINT, [
+                'query' => [
+                    'method' => 'uinfo',
+                    'access_token' => $accessToken
+                ]
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (GuzzleException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $responseContents = json_decode($response->getBody()->getContents(), true);
+
+                throw new InvalidClientException($responseContents['errmsg'] ?? '网络错误');
+            }
+
+            throw new InvalidClientException('网络错误');
+        }
+    }
+
+    /**
+     * @throws InvalidClientException
+     */
+    public function getQuota(string $accessToken, GetQuotaData $data)
+    {
+        try {
+            $response = $this->client->get(self::QUOTA_ENDPOINT, [
+                'query' => array_merge([
+                    'access_token' => $accessToken
+                ], $data->toArray())
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (GuzzleException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $responseContents = json_decode($response->getBody()->getContents(), true);
+
+                throw new InvalidClientException($responseContents['errmsg'] ?? '网络错误');
+            }
+
+            throw new InvalidClientException('网络错误');
+        }
     }
 }
