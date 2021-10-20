@@ -24,7 +24,7 @@ class OAuth2
         $this->client = $clientFactory->create();
     }
 
-    public function getAuthorizeUrl(GetAuthorizeUrlData $data)
+    public function getAuthorizeUrl(GetAuthorizeUrlData $data): string
     {
         $params = [
             'response_type' => 'code',
@@ -42,7 +42,7 @@ class OAuth2
     /**
      * @throws InvalidOAuth2Exception
      */
-    public function getAccessTokenByAuthorizationCode(GetAccessTokenByAuthorizationCodeData $data)
+    public function getAccessTokenByAuthorizationCode(GetAccessTokenByAuthorizationCodeData $data): array
     {
         $params = [
             'grant_type' => 'authorization_code',
@@ -73,7 +73,7 @@ class OAuth2
     /**
      * @throws InvalidOAuth2Exception
      */
-    public function getAccessTokenByRefreshToken(GetAccessTokenByRefreshTokenData $data)
+    public function getAccessTokenByRefreshToken(GetAccessTokenByRefreshTokenData $data): array
     {
         $params = [
             'grant_type' => 'refresh_token',

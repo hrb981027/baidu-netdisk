@@ -33,22 +33,24 @@ class Client
     const QUOTA_ENDPOINT = 'https://pan.baidu.com/api/quota';
 
     protected GuzzleHttpClient $client;
+    public string $accessToken = '';
 
-    public function __construct(ClientFactory $clientFactory)
+    public function __construct(ClientFactory $clientFactory, string $accessToken)
     {
         $this->client = $clientFactory->create();
+        $this->accessToken = $accessToken;
     }
 
     /**
      * @throws InvalidClientException
      */
-    public function preCreate(string $accessToken, PreCreateData $data)
+    public function preCreate(PreCreateData $data): array
     {
         try {
             $response = $this->client->post(self::PRE_CREATE_ENDPOINT, [
                 'query' => [
                     'method' => 'precreate',
-                    'access_token' => $accessToken
+                    'access_token' => $this->accessToken
                 ],
                 'form_params' => $data->toArray()
             ]);
@@ -69,12 +71,12 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function upload(string $accessToken, UploadData $data)
+    public function upload(UploadData $data): array
     {
         try {
             $response = $this->client->post(self::UPLOAD_ENDPOINT, [
                 'query' => array_merge([
-                    'access_token' => $accessToken
+                    'access_token' => $this->accessToken
                 ], $data->toArray()),
                 'multipart' => [
                     [
@@ -100,13 +102,13 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function create(string $accessToken, CreateData $data)
+    public function create(CreateData $data): array
     {
         try {
             $response = $this->client->post(self::CREATE_ENDPOINT, [
                 'query' => [
                     'method' => 'create',
-                    'access_token' => $accessToken
+                    'access_token' => $this->accessToken
                 ],
                 'form_params' => $data->toArray()
             ]);
@@ -127,10 +129,10 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function oneUpload(string $accessToken, OneUploadData $data)
+    public function oneUpload(OneUploadData $data): array
     {
         if ($data->isDir) {
-            return $this->create($accessToken, new CreateData([
+            return $this->create(new CreateData([
                 'path' => $data->path,
                 'size' => '0',
                 'is_dir' => true,
@@ -140,7 +142,7 @@ class Client
 
         $fileDataList = $this->splitFile($data->localPath, 4);
 
-        $preCreateResult = $this->preCreate($accessToken, new PreCreateData([
+        $preCreateResult = $this->preCreate(new PreCreateData([
             'path' => $data->path,
             'is_dir' => false,
             'size' => (string)filesize($data->localPath),
@@ -149,7 +151,7 @@ class Client
         ]));
 
         foreach ($fileDataList as $key => $item) {
-            $this->upload($accessToken, new UploadData([
+            $this->upload(new UploadData([
                 'path' => $data->path,
                 'upload_id' => $preCreateResult['uploadid'],
                 'part_seq' => $key,
@@ -157,7 +159,7 @@ class Client
             ]));
         }
 
-        return $this->create($accessToken, new CreateData([
+        return $this->create(new CreateData([
             'path' => $data->path,
             'size' => (string)filesize($data->localPath),
             'is_dir' => false,
@@ -193,13 +195,13 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function fileMetas(string $accessToken, FileMetasData $data)
+    public function fileMetas(FileMetasData $data): array
     {
         try {
             $response = $this->client->get(self::FILE_METAS_ENDPOINT, [
                 'query' => array_merge([
                     'method' => 'filemetas',
-                    'access_token' => $accessToken
+                    'access_token' => $this->accessToken
                 ], $data->toArray())
             ]);
 
@@ -219,13 +221,13 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function search(string $accessToken, SearchData $data)
+    public function search(SearchData $data): array
     {
         try {
             $response = $this->client->get(self::SEARCH_ENDPOINT, [
                 'query' => array_merge([
                     'method' => 'search',
-                    'access_token' => $accessToken
+                    'access_token' => $this->accessToken
                 ], $data->toArray())
             ]);
 
@@ -245,13 +247,13 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function getList(string $accessToken, GetListData $data)
+    public function getList(GetListData $data): array
     {
         try {
             $response = $this->client->get(self::LIST_ENDPOINT, [
                 'query' => array_merge([
                     'method' => 'list',
-                    'access_token' => $accessToken
+                    'access_token' => $this->accessToken
                 ], $data->toArray())
             ]);
 
@@ -271,13 +273,13 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function getListAll(string $accessToken, GetListAllData $data)
+    public function getListAll(GetListAllData $data): array
     {
         try {
             $response = $this->client->get(self::LIST_ALL_ENDPOINT, [
                 'query' => array_merge([
                     'method' => 'listall',
-                    'access_token' => $accessToken
+                    'access_token' => $this->accessToken
                 ], $data->toArray())
             ]);
 
@@ -297,13 +299,13 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function manager(string $accessToken, string $opera, MangerData $data)
+    public function manager(string $opera, MangerData $data): array
     {
         try {
             $response = $this->client->post(self::MANAGER_ENDPOINT, [
                 'query' => [
                     'method' => 'filemanager',
-                    'access_token' => $accessToken,
+                    'access_token' => $this->accessToken,
                     'opera' => $opera
                 ],
                 'form_params' => $data->toArray()
@@ -325,13 +327,13 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function getUserInfo(string $accessToken)
+    public function getUserInfo(): array
     {
         try {
             $response = $this->client->get(self::USER_INFO_ENDPOINT, [
                 'query' => [
                     'method' => 'uinfo',
-                    'access_token' => $accessToken
+                    'access_token' => $this->accessToken
                 ]
             ]);
 
@@ -351,12 +353,12 @@ class Client
     /**
      * @throws InvalidClientException
      */
-    public function getQuota(string $accessToken, GetQuotaData $data)
+    public function getQuota(GetQuotaData $data): array
     {
         try {
             $response = $this->client->get(self::QUOTA_ENDPOINT, [
                 'query' => array_merge([
-                    'access_token' => $accessToken
+                    'access_token' => $this->accessToken
                 ], $data->toArray())
             ]);
 
