@@ -10,7 +10,6 @@ use Hrb981027\BaiduNetdisk\Exception\InvalidOAuth2Exception;
 use Hrb981027\BaiduNetdisk\Param\OAuth2\GetAccessTokenByAuthorizationCode\Data as GetAccessTokenByAuthorizationCodeData;
 use Hrb981027\BaiduNetdisk\Param\OAuth2\GetAccessTokenByRefreshToken\Data as GetAccessTokenByRefreshTokenData;
 use Hrb981027\BaiduNetdisk\Param\OAuth2\GetAuthorizeUrl\Data as GetAuthorizeUrlData;
-use Hyperf\Guzzle\ClientFactory;
 
 class OAuth2
 {
@@ -19,9 +18,9 @@ class OAuth2
 
     protected GuzzleHttpClient $client;
 
-    public function __construct(ClientFactory $clientFactory)
+    public function __construct()
     {
-        $this->client = $clientFactory->create();
+        $this->client = new GuzzleHttpClient();
     }
 
     public function getAuthorizeUrl(GetAuthorizeUrlData $data): string
