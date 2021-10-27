@@ -17,6 +17,7 @@ use Hrb981027\BaiduNetdisk\Param\Client\PreCreate\Data as PreCreateData;
 use Hrb981027\BaiduNetdisk\Param\Client\Search\Data as SearchData;
 use Hrb981027\BaiduNetdisk\Param\Client\Upload\Data as UploadData;
 use Hrb981027\BaiduNetdisk\Param\Client\Create\Data as CreateData;
+use Hyperf\Guzzle\ClientFactory;
 
 class Client
 {
@@ -34,9 +35,9 @@ class Client
     protected GuzzleHttpClient $client;
     public string $accessToken = '';
 
-    public function __construct(string $accessToken)
+    public function __construct(ClientFactory $clientFactory, string $accessToken)
     {
-        $this->client = new GuzzleHttpClient();
+        $this->client = $clientFactory->create();
         $this->accessToken = $accessToken;
     }
 
