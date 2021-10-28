@@ -374,4 +374,34 @@ class Client
             throw new InvalidClientException('网络错误');
         }
     }
+
+    /**
+     * @throws InvalidClientException
+     */
+    public function getDownloadUrl(string $path): string
+    {
+        $pathInfo = pathinfo($path);
+
+        $result = $this->search(new SearchData([
+            'key' => $pathInfo['basename'],
+            'dir' => $pathInfo['dirname']
+        ]));
+
+        if (!isset($result['list'][0]['fs_id'])) {
+            return '';
+        }
+
+        $id = $result['list'][0]['fs_id'];
+
+        $info = $this->fileMetas(new FileMetasData([
+            'fsids' => [$id],
+            'dlink' => true
+        ]));
+
+        if (!isset($info['list'][0]['dlink'])) {
+            return '';
+        }
+
+        return $info['list'][0]['dlink'] . '&access_token=' . $this->accessToken;
+    }
 }
